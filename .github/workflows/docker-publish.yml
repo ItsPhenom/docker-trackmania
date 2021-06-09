@@ -16,10 +16,7 @@ jobs:
         id: prep
         run: |
           DOCKER_IMAGE=itsphenom/trackmania
-          VERSION=edge
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/}
-          fi
+          VERSION=${GITHUB_REF#refs/tags/}
           TAGS="${DOCKER_IMAGE}:${VERSION},${DOCKER_IMAGE}:latest"
           echo ::set-output name=version::${VERSION}
           echo ::set-output name=tags::${TAGS}
@@ -33,16 +30,15 @@ jobs:
           echo ${{ steps.prep.outputs.tags }}
           echo ${{ steps.prep.outputs.builddate }}
           echo ${{ steps.prep.outputs.revision }}
-      # -
-      #   name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v1
-      # -
-      #   name: Login to DockerHub
-      #   if: github.event_name != 'pull_request'
-      #   uses: docker/login-action@v1 
-      #   with:
-      #     username: ${{ secrets.DOCKER_USERNAME }}
-      #     password: ${{ secrets.DOCKER_PASSWORD }}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
       # -
       #   name: Build and push
       #   uses: docker/build-push-action@v2
@@ -51,5 +47,5 @@ jobs:
       #     push: true
       #     tags: ${{ steps.prep.outputs.tags }}
       #     build-args: |
-      #       BUILD_DATE=value1
-      #       REVISION=value2
+      #       BUILD_DATE=${{ steps.prep.outputs.builddate }}
+      #       REVISION=${{ steps.prep.outputs.revision }}
